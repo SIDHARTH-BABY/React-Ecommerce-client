@@ -6,9 +6,7 @@ import Cards from "../../../components/Buyer/Cards/Cards";
 const HomePage = () => {
   return (
     <div>
-      <div>
-        <Navbar />
-      </div>
+      <Navbar />
 
       <Banner />
       <Cards />

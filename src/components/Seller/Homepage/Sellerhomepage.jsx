@@ -1,58 +1,122 @@
-import React, { useRef } from "react";
-import { addProduct } from "../../../services/Seller";
+import React, { useRef, useState } from "react";
+import { addImage, addProduct } from "../../../services/Seller";
 
 const Sellerhomepage = () => {
   const productNameRef = useRef();
   const productDetailsRef = useRef();
+  const productPriceRef = useRef();
 
+  const [image, setImage] = useState();
+  const [uploadImageError, setUploadImageError] = useState(false);
+  // const [imageCloudinaryUrl, setImageCloudinaryUrl] = useState();
+
+  const preset_key = "ecommerce";
+  const cloud_name = "dkht5n4ty";
+
+  const handleImage = (e) => {
+    setUploadImageError(false);
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", preset_key);
+    setImage(formData);
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const prodName = productNameRef.current.value;
       const prodDetails = productDetailsRef.current.value;
-      const response = await addProduct(prodDetails);
+      const prodPrice = productPriceRef.current.value;
+      if (image) {
+        console.log(image, "working");
+        const imageResponse = await addImage(image, cloud_name);
+        if (imageResponse.data) {
+          // setImageCloudinaryUrl(imageResponse.data.secure_url);
+
+          const ImageCloudUrl = imageResponse.data.secure_url;
+
+          console.log(ImageCloudUrl, "imagecloudd");
+          const response = await addProduct(
+            prodName,
+            prodDetails,
+            prodPrice,
+            ImageCloudUrl
+          );
+
+          // console.log(response,"response");
+        }
+      } else {
+        console.log("nottp");
+        setUploadImageError(true);
+      }
     } catch (error) {
-      console.log(error); 
+      console.log(error);
     }
-   
   };
   return (
     <div>
       <div>
-        <div
-          class="block max-w-sm rounded-lg bg-white bg-cover p-6 shadow-lg dark:bg-neutral-700 ml-10 mt-10"
-          //   style=`background-image: url('...');
-          //   style={{ backgroundImage: `url(${slides[1].url})` }}
+        <form
+          class="flex items-center space-x-6 ml-10 mt-10 md:max-lg:flex"
+          onSubmit={handleSubmit}
         >
-          {/* content image */}
-
-          <h5 class="mb-2 text-xl font-medium leading-tight text-neutral-800 text-white dark:text-neutral-50">
-            Product Details
-          </h5>
-          <form onSubmit={handleSubmit}>
-            <label class="mt-4">Product Name</label>
-            <input
-              type="text"
-              ref={productNameRef}
-              class="form-input ml-4 px-4 py-3 rounded-lg mt-4"
+          <div class="shrink-0">
+            <img
+              class="h-16 w-16 object-cover rounded-full"
+              src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1361&q=80"
+              alt="Current profile photo"
             />
-            <label class="mt-4">Product Name</label>
+          </div>
+          {/* product name */}
+          <label class="block">
+            <span class="block text-sm font-medium text-slate-700">
+              Prduct Name
+            </span>
+            <input type="text" class="peer ..." ref={productNameRef} />
+            <p class="mt-2 invisible peer-invalid:visible text-pink-600 text-sm">
+              Please provide a valid email address.
+            </p>
+            {/* productdetails */}
+            <span class="block text-sm font-medium text-slate-700">
+              Product Details
+            </span>
+            <input type="text" class="peer ..." ref={productDetailsRef} />
+            <p class="mt-2 invisible peer-invalid:visible text-pink-600 text-sm">
+              Please provide a valid email address.
+            </p>
+            {/* product price */}
+            <span class="block text-sm font-medium text-slate-700">
+              Prouduct Price
+            </span>
+            <input type="Number" class="peer ..." ref={productPriceRef} />
+            <p class="mt-2 invisible peer-invalid:visible text-pink-600 text-sm">
+              Please provide a valid email address.
+            </p>
+            {/* product imgage */}
+            <span class="sr-only">Choose profile photo</span>
             <input
-              type="text"
-              ref={productDetailsRef}
-              class="form-input ml-4 px-4 py-3 rounded-lg mt-4"
+              type="file"
+              name="image"
+              onChange={handleImage}
+              class="block w-full text-sm text-slate-500
+      file:mr-3 file:py-2 file:px-3
+      file:rounded-full file:border-0
+      file:text-sm file:font-semibold
+      file:bg-violet-50 file:text-violet-700
+      hover:file:bg-violet-100
+    "
             />
-
-            <button
-              type="submit"
-              class="mt-4 ml-28 inline-block rounded border-2 border-neutral-50 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-              data-te-ripple-init
-            >
-              Button
+            {uploadImageError ? (
+              <p class="mt-2   text-pink-600 text-sm">Please upload image.</p>
+            ) : (
+              ""
+            )}
+            <button class="mt-5 ml-5 rounded-full bg-emerald-900 w-40 h-10 text-yellow-50">
+              Save Changes
             </button>
-          </form>
-        </div>
+          </label>
+        </form>
       </div>
     </div>
   );
