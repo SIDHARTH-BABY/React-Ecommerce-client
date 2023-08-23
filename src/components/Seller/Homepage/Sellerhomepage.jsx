@@ -43,8 +43,10 @@ const Sellerhomepage = () => {
             prodPrice,
             ImageCloudUrl
           );
-
-          // console.log(response,"response");
+          if (response) {
+            console.log(response, "jjjj");
+            // console.log(response,"response");
+          }
         }
       } else {
         console.log("nottp");
