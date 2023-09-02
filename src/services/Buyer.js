@@ -2,4 +2,4 @@ import axios from "axios";
 
 const API = axios.create({ baseURL: "http://localhost:4000" });
 
-export const getAllProducts =()=>API.get("/buyer/getAllProducts")
+export const getAllProducts =()=>API.get("/buyer/getAllProducts")   

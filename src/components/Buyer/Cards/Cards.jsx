@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllProducts } from "../../../services/Buyer";
+import { addProductCart } from "../../../services/Cart";
 
 const Cards = () => {
   const [product, setProduct] = useState();
@@ -16,6 +17,18 @@ const Cards = () => {
 
     fetchCards();
   }, []);
+  const addToCart = async (productId) => {
+    try {
+   
+      const prodId = productId;
+      console.log(prodId,'proodidS');
+      const userId = "sidhu"
+      const response = await addProductCart(prodId,userId);
+      console.log(response);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   const slides = [
     {
       url: "Images/six.jpg",
@@ -36,16 +49,20 @@ const Cards = () => {
         {/* <div className="flex flex-wrap bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% py-16 sm:py-24 lg:py-16 px-20"> */}
         {product?.map((product, index) => (
           <div
-            className="block max-w-sm rounded-lg bg-white bg-cover p-6 shadow-lg dark:bg-neutral-700 mr-10 ml-10 mt-10"
+            className="block max-w-sm rounded-lg bg-white bg-cover p-6 shadow-lg dark:bg-neutral-700 mr-10 ml-12 mt-10"
             //   style=`background-image: url('...');
             //   style={{ backgroundImage: `url(${slides[1].url})` }}
           >
             {/* content image */}
 
             <div className="box-content h-32 w-40 border-4 ml-20">
-              <img src={`${slides[2].url}`} className="h-32 w-40" />
+              {/* <img src={`${slides[2].url}`} className="h-32 w-40" /> */}
+              <img src={product.productImages} className="h-32 w-40" />
             </div>
-            <h5 className="mb-2 mt-4 text-xl font-medium leading-tight text-neutral-800 text-white dark:text-neutral-50" key={index}>
+            <h5
+              className="mb-2 mt-4 text-xl font-medium leading-tight text-neutral-800 text-white dark:text-neutral-50"
+              key={index}
+            >
               {product.productName}
             </h5>
 
@@ -57,11 +74,15 @@ const Cards = () => {
               type="button"
               className="inline-block rounded border-2 border-neutral-50 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
               data-te-ripple-init
+              onClick={() => {
+                addToCart(product._id);
+              }}
             >
-              Button
+              Add To Cart
             </button>
           </div>
         ))}
+        
       </div>
     </div>
   );

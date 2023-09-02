@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [openNav, setOpenNav] = useState(false);
@@ -6,6 +7,7 @@ const Navbar = () => {
     e.preventDefault();
     setOpenNav(!openNav);
   };
+  const navigate = useNavigate()
   return (
     <div>
       <nav className="bg-white dark:bg-gray-900  w-full z-20 top-0 left-0 border-b border-gray-600">
@@ -16,18 +18,33 @@ const Navbar = () => {
             </span>
           </a>
           <div className="flex md:order-2">
+            <button  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-00 font-medium rounded-lg text-sm px-4  text-center  md:mr-0 dark:bg-blue-600 dark::hover:bg-blue-700 dark:focus:ring-blue-800" onClick={()=>{navigate("/cart")}}>
+              {" "}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                // stroke-width="1.5"
+                stroke="currentColor"
+                class="file: w-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                />
+              </svg>
+            </button>
             <button
               type="button"
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-00 font-medium rounded-lg text-sm px-4 py-2 text-center mr-3 md:mr-0 dark:bg-blue-600 dark::hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-00 font-medium rounded-lg text-sm px-4 py-2 text-center  mr-3 ml-2 md:mr-0 dark:bg-blue-600 dark::hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-        
               get started
             </button>
             <button
               type="button"
               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-00 font-medium rounded-lg text-sm px-4 py-2 text-center mr-3 ml-2 md:mr-0 dark:bg-blue-600 dark::hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-        
               Sell
             </button>
             <button
@@ -59,7 +76,7 @@ const Navbar = () => {
             } justify-between  w-full md:flex md:w-auto md:order-1`}
           >
             <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-              <li>
+              <li onClick={()=>{navigate("/")}}>
                 <a
                   href="#"
                   className="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
