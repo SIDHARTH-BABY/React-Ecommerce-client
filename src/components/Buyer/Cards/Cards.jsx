@@ -10,20 +10,20 @@ const Cards = () => {
 
       if (response.data.success) {
         console.log(response.data);
-        setProduct(response.data.formattedFriends);
+        setProduct(response.data.products);
         console.log(product ? product : "ooo", "prooo");
       }
     };
 
     fetchCards();
   }, []);
-  const addToCart = async (productId) => {
+  const addToCart = async (productId,prodName,prodPrice,prodImage) => {
     try {
    
       const prodId = productId;
       console.log(prodId,'proodidS');
       const userId = "sidhu"
-      const response = await addProductCart(prodId,userId);
+      const response = await addProductCart(prodId,userId,prodName,prodPrice,prodImage);
       console.log(response);
     } catch (error) {
       console.log(error.message);
@@ -75,7 +75,7 @@ const Cards = () => {
               className="inline-block rounded border-2 border-neutral-50 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
               data-te-ripple-init
               onClick={() => {
-                addToCart(product._id);
+                addToCart(product._id,product.productName,product.price,product.productImages);
               }}
             >
               Add To Cart

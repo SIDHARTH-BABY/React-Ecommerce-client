@@ -2,4 +2,8 @@ import axios from "axios";
 
 const API = axios.create({baseURL:"http://localhost:4000"})
 
-export const addProductCart =(prodId,userId)=>API.post("/cart/addToCart",{prodId,userId})
+export const addProductCart =(prodId,userId,prodName,prodPrice,prodImage)=>API.post("/cart/addToCart",{prodId,userId,prodName,prodPrice,prodImage})
+
+export const fetchCartItems =(userId) =>API.get(`/cart/getCartItems/${userId}`)
+
+export const removeCartItems =(proId,userId)=>API.put(`/cart/removeCartItem/${proId}/${userId}`)
