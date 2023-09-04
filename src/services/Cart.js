@@ -7,3 +7,5 @@ export const addProductCart =(prodId,userId,prodName,prodPrice,prodImage)=>API.p
 export const fetchCartItems =(userId) =>API.get(`/cart/getCartItems/${userId}`)
 
 export const removeCartItems =(proId,userId)=>API.put(`/cart/removeCartItem/${proId}/${userId}`)
+
+export const changeQuantityCart =(userId, prodId,newQuantity,itemPrice)=>API.put(`/cart/changeQuantityCart/${prodId}/${userId}/${newQuantity}/${itemPrice}`)

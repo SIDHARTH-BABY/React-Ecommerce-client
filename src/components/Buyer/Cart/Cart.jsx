@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../Common/Navbar/Navbar";
-import { fetchCartItems, removeCartItems } from "../../../services/Cart";
+import {
+  changeQuantityCart,
+  fetchCartItems,
+  removeCartItems,
+} from "../../../services/Cart";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState();
@@ -29,6 +33,24 @@ const Cart = () => {
       }
     } catch (error) {}
   };
+
+  const itemQuantityChange = async (prodId, val, currQuantity, itemPrice) => {
+    try {
+      const newQuantity = currQuantity + val;
+
+      const userId = "1234";
+      const response = await changeQuantityCart(
+        userId,
+        prodId,
+        newQuantity,
+        itemPrice
+      );
+      if (response.data.success) {
+        setCartUpdate(response.data.updatedCart);
+      }
+    } catch (error) {}
+  };
+
   return (
     <div>
       <div>
@@ -59,11 +81,7 @@ const Cart = () => {
               <div class="flex items-center hover:bg-gray-100 -mx-8 px-6 py-5">
                 <div class="flex w-2/5">
                   <div class="w-20">
-                    <img
-                      class="h-24"
-                      src={item.itemImage}
-                      alt=""
-                    />
+                    <img class="h-24" src={item.itemImage} alt="" />
                   </div>
                   <div class="flex flex-col justify-between ml-4 flex-grow">
                     <span class="font-bold text-sm" key={index}>
@@ -82,24 +100,43 @@ const Cart = () => {
                   </div>
                 </div>
                 <div class="flex justify-center w-1/5">
-                  <svg
-                    class="fill-current text-gray-600 w-3"
-                    viewBox="0 0 448 512"
-                    style={{ cursor: 'pointer' }} 
-                  >
-                    <path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z" />
-                  </svg>
+                  {item.quantity != 1 ? (
+                    <svg
+                      class="fill-current text-gray-600 w-3"
+                      viewBox="0 0 448 512"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        itemQuantityChange(
+                          item._id,
+                          -1,
+                          item.quantity,
+                          item.itemPrice
+                        );
+                      }}
+                    >
+                      <path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z" />
+                    </svg>
+                  ) : (
+                    ""
+                  )}
 
                   <input
                     class="mx-2 border text-center w-10"
                     type="text"
                     value={`${item.quantity}`}
                   />
-
                   <svg
                     class="fill-current text-gray-600 w-3"
                     viewBox="0 0 448 512"
-                    style={{ cursor: 'pointer' }} 
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      itemQuantityChange(
+                        item._id,
+                        1,
+                        item.quantity,
+                        item.itemPrice
+                      );
+                    }}
                   >
                     <path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z" />
                   </svg>
@@ -108,7 +145,7 @@ const Cart = () => {
                   {item.itemPrice}
                 </span>
                 <span class="text-center w-1/5 font-semibold text-sm">
-                  $400.00
+                  {item.totalQuantityPrice}
                 </span>
               </div>
             ))}
