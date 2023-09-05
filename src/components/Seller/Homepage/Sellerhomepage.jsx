@@ -43,8 +43,13 @@ const Sellerhomepage = () => {
             prodPrice,
             ImageCloudUrl
           );
-          if (response) {
+          if (response.data.success) {
             console.log(response, "jjjj");
+            setImage(null)
+            productNameRef.current.value = "";
+            productDetailsRef.current.value = "";
+            productPriceRef.current.value = "";
+            
             // console.log(response,"response");
           }
         }

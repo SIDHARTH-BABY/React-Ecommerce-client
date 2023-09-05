@@ -6,22 +6,33 @@ import {
   removeCartItems,
 } from "../../../services/Cart";
 
+
+export const fetchCart = async (userId, setCartItems) => {
+  const response = await fetchCartItems(userId);
+  if (response.data.success) {
+    setCartItems(response.data.productData);
+    console.log(response);
+  }
+};
 const Cart = () => {
   const [cartItems, setCartItems] = useState();
   const [cartUpdate, setCartUpdate] = useState();
-
+ 
+  // useEffect(() => {
+  //   const userId = "1234";
+  //   const fetchCart = async () => {
+  //     const response = await fetchCartItems(userId);
+  //     if (response.data.success) {
+  //       setCartItems(response.data.productData);
+  //       console.log(response);
+  //     }
+  //   };
+  //   fetchCart();
+  // }, [cartUpdate]);
   useEffect(() => {
     const userId = "1234";
-    const fetchCart = async () => {
-      const response = await fetchCartItems(userId);
-      if (response.data.success) {
-        setCartItems(response.data.productData);
-        console.log(response);
-      }
-    };
-    fetchCart();
+    fetchCart(userId, setCartItems);
   }, [cartUpdate]);
-
   const removeCartItem = async (prodId) => {
     try {
       const userId = "1234";

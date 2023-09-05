@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { signOut } from "supertokens-auth-react/recipe/thirdpartyemailpassword";
+import { useSessionContext } from "supertokens-auth-react/recipe/session";
+import { useEffect } from "react";
+import axios from "axios";
+import { getApiDomain } from "../../../config";
 
 const Navbar = () => {
   const [openNav, setOpenNav] = useState(false);
@@ -7,7 +12,24 @@ const Navbar = () => {
     e.preventDefault();
     setOpenNav(!openNav);
   };
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  const signout = async () => {
+    await signOut();
+    window.location.href = "/auth";
+  };
+
+  let userId = useSessionContext().userId;
+
+  console.log(userId ? userId : "oii", "userId");
+
+  // useEffect(()=>{
+  //   async function callSession (){
+  //     const response = await axios.get(getApiDomain() + "/sessioninfo")
+  //     console.log(response?JSON.stringify(response.data,null,2):'nop resppo'); 
+  //   }
+  //   callSession()
+  // },[])
   return (
     <div>
       <nav className="bg-white dark:bg-gray-900  w-full z-20 top-0 left-0 border-b border-gray-600">
@@ -18,7 +40,12 @@ const Navbar = () => {
             </span>
           </a>
           <div className="flex md:order-2">
-            <button  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-00 font-medium rounded-lg text-sm px-4  text-center  md:mr-0 dark:bg-blue-600 dark::hover:bg-blue-700 dark:focus:ring-blue-800" onClick={()=>{navigate("/cart")}}>
+            <button
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-00 font-medium rounded-lg text-sm px-4  text-center  md:mr-0 dark:bg-blue-600 dark::hover:bg-blue-700 dark:focus:ring-blue-800"
+              onClick={() => {
+                navigate("/cart");
+              }}
+            >
               {" "}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -36,17 +63,24 @@ const Navbar = () => {
               </svg>
             </button>
             <button
-              type="button"
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-00 font-medium rounded-lg text-sm px-4 py-2 text-center  mr-3 ml-2 md:mr-0 dark:bg-blue-600 dark::hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-              get started
-            </button>
-            <button
+              onClick={() => {
+                navigate("/sell");
+              }}
               type="button"
               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-00 font-medium rounded-lg text-sm px-4 py-2 text-center mr-3 ml-2 md:mr-0 dark:bg-blue-600 dark::hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               Sell
             </button>
+            <button
+              onClick={() => {
+                signout();
+              }}
+              type="button"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-00 font-medium rounded-lg text-sm px-4 py-2 text-center  mr-3 ml-2 md:mr-0 dark:bg-blue-600 dark::hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              Logout
+            </button>
+
             <button
               type="button"
               data-collapse-toggle="navbar-sticky"
@@ -76,7 +110,11 @@ const Navbar = () => {
             } justify-between  w-full md:flex md:w-auto md:order-1`}
           >
             <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-              <li onClick={()=>{navigate("/")}}>
+              <li
+                onClick={() => {
+                  navigate("/");
+                }}
+              >
                 <a
                   href="#"
                   className="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
