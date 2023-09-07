@@ -1,23 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Navbar from "../../Common/Navbar/Navbar";
 import {
   changeQuantityCart,
   fetchCartItems,
   removeCartItems,
 } from "../../../services/Cart";
+import { DataContext } from "../../../App";
+import { useSessionContext } from "supertokens-auth-react/recipe/session";
 
-
-export const fetchCart = async (userId, setCartItems) => {
+export const fetchCart = async (userId, setCartItems, setCheckoutPrice) => {
   const response = await fetchCartItems(userId);
   if (response.data.success) {
     setCartItems(response.data.productData);
+    setCheckoutPrice(response.data.checkoutPrice);
     console.log(response);
   }
 };
+
 const Cart = () => {
   const [cartItems, setCartItems] = useState();
   const [cartUpdate, setCartUpdate] = useState();
- 
+  const [checkoutPrice, setCheckoutPrice] = useState();
+
+  const userIdd = useContext(DataContext);
+
   // useEffect(() => {
   //   const userId = "1234";
   //   const fetchCart = async () => {
@@ -29,15 +35,15 @@ const Cart = () => {
   //   };
   //   fetchCart();
   // }, [cartUpdate]);
+
+  let UserId = useSessionContext().userId;
   useEffect(() => {
-    const userId = "1234";
-    fetchCart(userId, setCartItems);
+    fetchCart(UserId, setCartItems, setCheckoutPrice);
   }, [cartUpdate]);
+
   const removeCartItem = async (prodId) => {
     try {
-      const userId = "1234";
-      console.log(prodId, "cartProid");
-      const response = await removeCartItems(prodId, userId);
+      const response = await removeCartItems(prodId, UserId);
       if (response.data.success) {
         console.log(response.data.itemDeleted);
         setCartUpdate(response.data.itemDeleted);
@@ -49,9 +55,8 @@ const Cart = () => {
     try {
       const newQuantity = currQuantity + val;
 
-      const userId = "1234";
       const response = await changeQuantityCart(
-        userId,
+        UserId,
         prodId,
         newQuantity,
         itemPrice
@@ -178,27 +183,20 @@ const Cart = () => {
             <h1 class="font-semibold text-2xl border-b pb-8">Order Summary</h1>
             <div class="flex justify-between mt-10 mb-5">
               <span class="font-semibold text-sm uppercase">Items 3</span>
-              <span class="font-semibold text-sm">590$</span>
+              <span class="font-semibold text-sm">{checkoutPrice ? checkoutPrice : 0}</span>
             </div>
-            <div>
-              <label class="font-medium inline-block mb-3 text-sm uppercase">
-                Shipping
-              </label>
-              <select class="block p-2 text-gray-600 w-full text-sm">
-                <option>Standard shipping - $10.00</option>
-              </select>
-            </div>
+           
             <div class="py-10">
               <label
                 for="promo"
                 class="font-semibold inline-block mb-3 text-sm uppercase"
               >
-                Promo Code
+                Shipping Address
               </label>
               <input
                 type="text"
-                id="promo"
-                placeholder="Enter your code"
+                id="address"
+                placeholder="Enter your Address"
                 class="p-2 text-sm w-full"
               />
             </div>
@@ -208,7 +206,7 @@ const Cart = () => {
             <div class="border-t mt-8">
               <div class="flex font-semibold justify-between py-6 text-sm uppercase">
                 <span>Total cost</span>
-                <span>$600</span>
+                <span>{checkoutPrice ? checkoutPrice : 0}</span>
               </div>
               <button class="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full">
                 Checkout

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllProducts } from "../../../services/Buyer";
 import { addProductCart } from "../../../services/Cart";
+import { useSessionContext } from "supertokens-auth-react/recipe/session";
 
 const Cards = () => {
   const [product, setProduct] = useState();
@@ -17,13 +18,15 @@ const Cards = () => {
 
     fetchCards();
   }, []);
+  
+  let UserId = useSessionContext().userId;
   const addToCart = async (productId,prodName,prodPrice,prodImage) => {
     try {
    
       const prodId = productId;
       console.log(prodId,'proodidS');
-      const userId = "sidhu"
-      const response = await addProductCart(prodId,userId,prodName,prodPrice,prodImage);
+     
+      const response = await addProductCart(prodId,UserId,prodName,prodPrice,prodImage);
       console.log(response);
     } catch (error) {
       console.log(error.message);

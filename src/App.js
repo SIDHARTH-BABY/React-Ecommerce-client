@@ -1,4 +1,3 @@
-
 import "./App.css";
 import Cart from "./components/Buyer/Cart/Cart";
 import HomePage from "./pages/Buyer/Homepage/HomePage";
@@ -12,24 +11,41 @@ import { ThirdPartyEmailPasswordPreBuiltUI } from "supertokens-auth-react/recipe
 import * as reactRouterDom from "react-router-dom";
 import { superTokensConfig } from "./config";
 import { SessionAuth } from "supertokens-auth-react/recipe/session";
+import { createContext } from "react";
+import { useSessionContext } from "supertokens-auth-react/recipe/session";
+export const DataContext = createContext();
+
 function App() {
-  
-SuperTokens.init(superTokensConfig);
+  SuperTokens.init(superTokensConfig);
+
+  const useerId = "1234";
   return (
     <div className="App">
-       <SuperTokensWrapper>
-      <BrowserRouter>
-        <Routes>
-           {/*This renders the login UI on the /a route*/}
-           {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [ThirdPartyEmailPasswordPreBuiltUI])}
-                        {/*Your app routes*/}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/sell" element={<LandingPage />} />
-          <Route path="/cart" element={<Cart />} />
-          {/* <SessionAuth> (want to protect, keep here)</SessionAuth> */}
-        </Routes>
-      </BrowserRouter>
-      </SuperTokensWrapper>
+      <DataContext.Provider value={{ useerId }}>
+        <SuperTokensWrapper>
+          <BrowserRouter>
+            <Routes>
+              {/*This renders the login UI on the /a route*/}
+              {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [
+                ThirdPartyEmailPasswordPreBuiltUI,
+              ])}
+              {/*Your app routes*/}
+
+              <Route path="/" element={<HomePage />} />
+
+              <Route path="/sell" element={<LandingPage />} />
+              <Route
+                path="/cart"
+                element={
+                  <SessionAuth>
+                    <Cart />
+                  </SessionAuth>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+        </SuperTokensWrapper>
+      </DataContext.Provider>
     </div>
   );
 }
