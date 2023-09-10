@@ -7,6 +7,9 @@ import {
 } from "../../../services/Cart";
 import { DataContext } from "../../../App";
 import { useSessionContext } from "supertokens-auth-react/recipe/session";
+import { createOrderRazorpay } from "../../../services/razorpayOrder";
+
+const _DEV_ = document.domain === "localhost";
 
 export const fetchCart = async (userId, setCartItems, setCheckoutPrice) => {
   const response = await fetchCartItems(userId);
@@ -15,6 +18,21 @@ export const fetchCart = async (userId, setCartItems, setCheckoutPrice) => {
     setCheckoutPrice(response.data.checkoutPrice);
     console.log(response);
   }
+};
+
+const loadScript = async (src) => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = src;
+    document.body.appendChild(script);
+    script.onload = () => {
+      resolve(true);
+    };
+    script.onerror = () => {
+      resolve(false);
+    };
+ 
+  });
 };
 
 const Cart = () => {
@@ -35,6 +53,52 @@ const Cart = () => {
   //   };
   //   fetchCart();
   // }, [cartUpdate]);
+
+  const displayRazorpay = async (checkoutPrice) => {
+    const res = await loadScript(
+      "https://checkout.razorpay.com/v1/checkout.js"
+    );
+
+    if (!res) {
+      alert("Razorpay SDK failed to load, Are you online");
+      return;
+    }
+    const amount = checkoutPrice.checkoutPrice;
+    const response = await createOrderRazorpay(amount);
+    if(response.data.success){
+      console.log(response,'razor respnse');
+      console.log( response.data.orderCreated.amount,'razor payment amoutn');
+    
+    var options = {
+      key: _DEV_ ? "rzp_test_HVPlTnDZYqCBkb" : "PRODUCTION_KEY", // Enter the Key ID generated from the Dashboard
+      amount: response.data.orderCreated.amount,
+      currency: response.data.orderCreated.currency, //100p = 1rupee
+      order_id: response.data.orderCreated._id,
+      name: "Acme Corp", //your business name
+      description: "Test Transaction",
+      image: "https://example.com/your_logo",
+
+      // callback_url: "https://eneqd3r9zrjok.x.pipedream.net/", 
+      
+      prefill: {
+        //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+        name: "Gaurav Kumar", //your customer's name
+        email: "gaurav.kumar@example.com",
+        contact: "9000090000", //Provide the customer's phone number for better conversion rates
+      },
+      notes: {
+        address: "Razorpay Corporate Office",
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+  
+    var paymentObject = new window.Razorpay(options);
+
+    paymentObject.open();
+  }
+  };
 
   let UserId = useSessionContext().userId;
   useEffect(() => {
@@ -183,9 +247,11 @@ const Cart = () => {
             <h1 class="font-semibold text-2xl border-b pb-8">Order Summary</h1>
             <div class="flex justify-between mt-10 mb-5">
               <span class="font-semibold text-sm uppercase">Items 3</span>
-              <span class="font-semibold text-sm">{checkoutPrice ? checkoutPrice : 0}</span>
+              <span class="font-semibold text-sm">
+                {checkoutPrice ? checkoutPrice : 0}
+              </span>
             </div>
-           
+
             <div class="py-10">
               <label
                 for="promo"
@@ -208,7 +274,12 @@ const Cart = () => {
                 <span>Total cost</span>
                 <span>{checkoutPrice ? checkoutPrice : 0}</span>
               </div>
-              <button class="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full">
+              <button
+                class="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full"
+                onClick={() => {
+                  displayRazorpay({ checkoutPrice });
+                }}
+              >
                 Checkout
               </button>
             </div>
