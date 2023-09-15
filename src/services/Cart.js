@@ -9,3 +9,8 @@ export const fetchCartItems =(userId) =>API.get(`/cart/getCartItems/${userId}`)
 export const removeCartItems =(proId,userId)=>API.put(`/cart/removeCartItem/${proId}/${userId}`)
 
 export const changeQuantityCart =(userId, prodId,newQuantity,itemPrice)=>API.put(`/cart/changeQuantityCart/${prodId}/${userId}/${newQuantity}/${itemPrice}`)
+
+export const addAddress =(userId,address)=>API.post(`/cart/addAddress/${userId}`,{address})
+
+export const removeAllCartItem =(userId)=>API.post(`/cart/removeCartItem/${userId}`)
+

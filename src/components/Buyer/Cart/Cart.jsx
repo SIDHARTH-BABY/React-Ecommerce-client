@@ -1,8 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Navbar from "../../Common/Navbar/Navbar";
 import {
+  addAddress,
   changeQuantityCart,
   fetchCartItems,
+  removeAllCartItem,
   removeCartItems,
 } from "../../../services/Cart";
 import { DataContext } from "../../../App";
@@ -11,15 +13,23 @@ import { createOrderRazorpay } from "../../../services/razorpayOrder";
 
 const _DEV_ = document.domain === "localhost";
 
-export const fetchCart = async (userId, setCartItems, setCheckoutPrice) => {
+export const fetchCart = async (
+  userId,
+  setCartItems,
+  setCheckoutPrice,
+  setUserAddress
+) => {
   const response = await fetchCartItems(userId);
   if (response.data.success) {
     setCartItems(response.data.productData);
+    setUserAddress(response.data.address);
     setCheckoutPrice(response.data.checkoutPrice);
-    console.log(response);
+
+    console.log(response, "addresss");
   }
 };
 
+//razorpay script
 const loadScript = async (src) => {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -31,7 +41,6 @@ const loadScript = async (src) => {
     script.onerror = () => {
       resolve(false);
     };
- 
   });
 };
 
@@ -39,7 +48,10 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState();
   const [cartUpdate, setCartUpdate] = useState();
   const [checkoutPrice, setCheckoutPrice] = useState();
+  const [userAddress, setUserAddress] = useState();
+  const [currentAddress, setCurrentAddress] = useState();
 
+  const addressRef = useRef();
   const userIdd = useContext(DataContext);
 
   // useEffect(() => {
@@ -54,6 +66,29 @@ const Cart = () => {
   //   fetchCart();
   // }, [cartUpdate]);
 
+  let UserId = useSessionContext().userId;
+  useEffect(() => {
+    fetchCart(UserId, setCartItems, setCheckoutPrice, setUserAddress);
+  }, [cartUpdate]);
+
+  const handleAddress = async (e) => {
+    try {
+      e.preventDefault();
+      if (userAddress.length < 2) {
+        const address = addressRef.current.value;
+        console.log(address, "new address");
+        const response = await addAddress(UserId, address);
+        if (response.data.success) {
+          setCartUpdate(response.data);
+        }
+      } else {
+        alert("address limit 2");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const displayRazorpay = async (checkoutPrice) => {
     const res = await loadScript(
       "https://checkout.razorpay.com/v1/checkout.js"
@@ -64,46 +99,48 @@ const Cart = () => {
       return;
     }
     const amount = checkoutPrice.checkoutPrice;
-    const response = await createOrderRazorpay(amount);
-    if(response.data.success){
-      console.log(response,'razor respnse');
-      console.log( response.data.orderCreated.amount,'razor payment amoutn');
-    
-    var options = {
-      key: _DEV_ ? "rzp_test_HVPlTnDZYqCBkb" : "PRODUCTION_KEY", // Enter the Key ID generated from the Dashboard
-      amount: response.data.orderCreated.amount,
-      currency: response.data.orderCreated.currency, //100p = 1rupee
-      order_id: response.data.orderCreated._id,
-      name: "Acme Corp", //your business name
-      description: "Test Transaction",
-      image: "https://example.com/your_logo",
+    console.log(currentAddress, "cuurent address");
+    const currAddress = currentAddress ? currentAddress : "";
+    const response = await createOrderRazorpay(
+      amount,
+      UserId,
+      cartItems,
+      currAddress
+    );
+    if (response.data.success) {
+      console.log(response, "razor respnse");
+      console.log(response.data.orderCreated.amount, "razor payment amoutn");
+      const removeCartItems = await removeAllCartItem(UserId);
+      var options = {
+        key: _DEV_ ? "rzp_test_HVPlTnDZYqCBkb" : "PRODUCTION_KEY", // Enter the Key ID generated from the Dashboard
+        amount: response.data.orderCreated.amount,
+        currency: response.data.orderCreated.currency, //100p = 1rupee
+        order_id: response.data.orderCreated._id,
+        name: "Acme Corp", //your business name
+        description: "Test Transaction",
+        image: "https://example.com/your_logo",
 
-      // callback_url: "https://eneqd3r9zrjok.x.pipedream.net/", 
-      
-      prefill: {
-        //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
-        name: "Gaurav Kumar", //your customer's name
-        email: "gaurav.kumar@example.com",
-        contact: "9000090000", //Provide the customer's phone number for better conversion rates
-      },
-      notes: {
-        address: "Razorpay Corporate Office",
-      },
-      theme: {
-        color: "#3399cc",
-      },
-    };
-  
-    var paymentObject = new window.Razorpay(options);
+        // callback_url: "https://eneqd3r9zrjok.x.pipedream.net/",
 
-    paymentObject.open();
-  }
+        prefill: {
+          //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+          name: "Gaurav Kumar", //your customer's name
+          email: "gaurav.kumar@example.com",
+          contact: "9000090000", //Provide the customer's phone number for better conversion rates
+        },
+        notes: {
+          address: "Razorpay Corporate Office",
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      var paymentObject = new window.Razorpay(options);
+
+      paymentObject.open();
+    }
   };
-
-  let UserId = useSessionContext().userId;
-  useEffect(() => {
-    fetchCart(UserId, setCartItems, setCheckoutPrice);
-  }, [cartUpdate]);
 
   const removeCartItem = async (prodId) => {
     try {
@@ -251,24 +288,48 @@ const Cart = () => {
                 {checkoutPrice ? checkoutPrice : 0}
               </span>
             </div>
-
-            <div class="py-10">
-              <label
-                for="promo"
-                class="font-semibold inline-block mb-3 text-sm uppercase"
+            <form onSubmit={handleAddress}>
+              <div class="py-10">
+                <label
+                  for="promo"
+                  class="font-semibold inline-block mb-3 text-sm uppercase"
+                >
+                  Shipping Address
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter your Address"
+                  class="p-2 text-sm w-full"
+                  ref={addressRef}
+                />
+              </div>
+              <button
+                type="submit"
+                class="bg-red-500 hover:bg-red-600 px-5 py-2 text-sm text-white uppercase"
               >
-                Shipping Address
-              </label>
-              <input
-                type="text"
-                id="address"
-                placeholder="Enter your Address"
-                class="p-2 text-sm w-full"
-              />
+                Apply
+              </button>
+            </form>
+
+            <div className="flex  flex-col mt-3">
+              Select Address
+              {userAddress?.map((item, index) => (
+                <button
+                  onClick={() => {
+                    setCurrentAddress(item.userAddress);
+                  }}
+                  className={`border-solid border-2 mt-3 ${
+                    currentAddress === item.userAddress
+                      ? "border-rose-500"
+                      : "border-sky-500 hover:border-rose-500"
+                  }`}
+                  key={index}
+                >
+                  {item.userAddress}
+                </button>
+              ))}
             </div>
-            <button class="bg-red-500 hover:bg-red-600 px-5 py-2 text-sm text-white uppercase">
-              Apply
-            </button>
+
             <div class="border-t mt-8">
               <div class="flex font-semibold justify-between py-6 text-sm uppercase">
                 <span>Total cost</span>
@@ -277,7 +338,11 @@ const Cart = () => {
               <button
                 class="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full"
                 onClick={() => {
-                  displayRazorpay({ checkoutPrice });
+                  {
+                    currentAddress
+                      ? displayRazorpay({ checkoutPrice })
+                      : alert("select addres");
+                  }
                 }}
               >
                 Checkout
