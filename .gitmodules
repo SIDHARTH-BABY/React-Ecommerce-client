@@ -1,0 +1,3 @@
+[submodule "React-Ecommerce-Server"]
+	path = React-Ecommerce-Server
+	url = https://github.com/SIDHARTH-BABY/React-Ecommerce-Server.git
